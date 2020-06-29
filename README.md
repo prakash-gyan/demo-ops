@@ -14,4 +14,4 @@
 ##Kubernetes deployemnt:
 # Pre-requisite
 	-- kubernetes cluster should be up and running with kubectl
-   Run "kubectl apply -f k8s-deploymnet.yml" to deploy the cluster and verify it using NodePort
+   Run "kubectl apply -f k8s-deploymnet.yml" to deploy the application and verify it using NodePort
