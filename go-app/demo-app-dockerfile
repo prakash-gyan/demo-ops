@@ -1,0 +1,14 @@
+From ubuntu:18.04
+RUN mkdir /demo-app; \
+        apt-get update -y; \
+        apt-get install -y make; \
+        apt-get install -y wget; \
+        wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz; \
+        tar -C /usr/local -xzf go1.14.4.linux-amd64.tar.gz
+COPY Makefile go.mod go.sum main.go /
+ENV DEMO_APP_ADDR 172.17.0.3:8000
+ENV DEMO_REDIS_ADDR 172.17.0.2:6379
+ENV PATH=$PATH:/usr/local/go/bin
+RUN make build
+ENTRYPOINT ["/demo.bin"]
+EXPOSE 8000

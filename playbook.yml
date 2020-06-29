@@ -1,0 +1,49 @@
+--- 
+- hosts: all
+  become: true
+  roles:
+    - dev-sec.os-hardening
+  vars:
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
+      fs.file-max: 65535
+  tasks:
+   - name: change max open file limit
+     shell:
+      cmd: ulimit -n 65355
+   - name: change hostname
+     lineinfile:
+      dest: /etc/hostname
+      regexp: 'vagrant'
+      line: 'demo-ops'
+      state: present
+   - name: create user
+     user: 
+      name: demo
+      shell: /bin/bash
+   - name: set time zone to Asia/Kolkata
+     timezone:
+      name: Asia/Kolkata
+   - name: Create a directory if it does not exist
+     file:
+      path: /etc/docker
+      state: directory
+      mode: '0755'
+   - name: Copy applicaion required files
+     copy:
+      src: go-app/
+      dest: /etc/demo-ops/
+   - name: install dokcer and docker-compose
+     shell:
+      cmd: wget -qO- https://get.docker.com/ | sh && usermod -aG docker vagrant && curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+   - name: copy docker daemon.json file
+     copy:
+      src: go-app/daemon.json
+      dest: /etc/docker/daemon.json
+
+   - name: docker-compose up
+     shell:
+      cmd: docker-compose up -d
+      chdir: /etc/demo-ops/
+   - name: reboot the vm
+     reboot:
